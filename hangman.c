@@ -1,83 +1,89 @@
-/*
-THE PROJECT MADE BY HERTZ
-last edit: 17-Jun-2026
-*/
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
+#define MAX 100
 
-#include <iostream> // main
-#include <cstdlib>// for guessing
-#include <ctime>
-#include <string>
-#include <vector>   // to use unknown arrays (letters in words tbh)
 
-int main()
-{
-    std::cout << "Welcome to hangman game !\n";
+int main(){
+  srand((unsigned)time(NULL));
+  printf("Welcome to the hangman game ");
 
-    std::vector<std::string> words = {
-        "apple", "car", "programming",
-        "elephant", "computer", "engineering"
-    };
+  char words[][MAX] = {
+    "apple","computer","fruit","Art","Egg"
+  };
 
-    std::srand(std::time(nullptr));
+  size_t current_arr_size = sizeof(words)/sizeof(words[0]);
+  
+  if(current_arr_size > 0){
+  
+      int random_index = rand() % current_arr_size;
+      int tries = strlen(words[random_index]) + 4;//very generous tries lol
+      int word_len = strlen(words[random_index]);
 
-    const int random_value = std::rand() % words.size();
-    std::string selected_By_AI = words.at(random_value);
+      char *blank_word = malloc(word_len + 1);
+      if(!blank_word){
+        printf("Malloc failed");
+        return 1;
+      }
 
-    std::cout << "the selected number is "
-        << selected_By_AI.size()
-        << std::endl;
+      int current_index;
+      for (current_index = 0; current_index < word_len; current_index++)
+      {
+        blank_word[current_index] = '-';
+      }
+      blank_word[current_index] = '\0';
+      
 
-    std::string blank(selected_By_AI.size(), '-');
+      while (tries > 0)
+      {
+        char letter;
+        printf("\nEnter the letter : ");
+        scanf(" %c",&letter);
 
-    std::cout << blank;
-    int tries = selected_By_AI.size() + 2; //to make it easy
-    std::cout << std::endl
-        << "now start putting your gussing words, you have " << tries <<" tries\n";
+        int isWordFound = 0;
+        int isAllWordsFound = 0;
 
-    char user;
-
-    while (tries > 0)
-    {
-        std::cin >> user;
-
-        bool found_in_word = false;
-
-        for (int i = 0; i < selected_By_AI.size(); i++)
-        {
-            if (selected_By_AI.at(i) == user && blank.at(i) == '-')
-            {
-                blank.at(i) = user;
-                found_in_word = true;
+        for(int i = 0;i < word_len;i++){
+            if(words[random_index][i] == letter && blank_word[i] != letter){
+              blank_word[i] = letter;
+              isWordFound = 1;
             }
         }
 
-        if (found_in_word)
-        {
-            std::cout << "Found!\n-> ";
-            std::cout << blank << std::endl;
-
-            if (blank.find('-') == std::string::npos)
-            {
-                std::cout << "\nCONGRATS!!!! YOU DID IT !!!! The word was: "
-                    << selected_By_AI << "\n";
-                break;
+            if(isWordFound){
+              printf("letter found\n");
+              printf("\n%s",blank_word);
+            }else{
+              tries--;
+              printf("\nletter not found in word\n");
+              printf("%d tries left",tries);
             }
-        }
-        else
-        {
-            tries--;
 
-            std::cout << "Not found, you have "
-                << tries
-                << " tries ";
-
-            if (tries == 0)
-            {
-                std::cout << "\nGame Over! The word was: "
-                    << selected_By_AI << "\n";
+          int blanks_symbol_count = 0;
+          for(int i = 0;i < word_len;i++){
+            if(blank_word[i] == '-'){
+              blanks_symbol_count++;
             }
-        }
-    }
+          }
 
-    return 0;
+          if(blanks_symbol_count == 0){
+            isAllWordsFound = 1;
+          }
+          
+          if(isAllWordsFound){
+            printf("You winnn!!!\nWord was %s\n",words[random_index]);
+            free(blank_word);
+            return 0;
+          }
+
+          if(tries == 0){
+                printf("\nGame over\nWord was %s",words[random_index]);
+                free(blank_word);
+                return 0;
+              }
+      }
+      
+  }
+
 }
